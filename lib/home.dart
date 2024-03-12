@@ -1,4 +1,6 @@
 import 'package:edukasi_mobile/page_list_user.dart';
+import 'package:edukasi_mobile/page_login.dart';
+import 'package:edukasi_mobile/utils/session_manager.dart';
 import 'package:flutter/material.dart';
 import 'page_register.dart'; // Import halaman registrasi
 
@@ -15,7 +17,7 @@ class _HomeState extends State<Home> {
       _selectedIndex = index;
     });
 
-    if (index == 1) { // Index 1 corresponds to "Form Register" tab
+    if (index == 1) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => PageRegister()),
@@ -32,13 +34,62 @@ class _HomeState extends State<Home> {
       );
     }
   }
+  String? username;
+
+  Future<void> getDataSession() async {
+    bool hasSession = await sessionManager.getSession();
+    if (hasSession) {
+      setState(() {
+        username = sessionManager.username;
+        print('Data session: $username');
+      });
+    } else {
+      print('Session tidak ditemukan!');    }
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+    getDataSession();
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Homepage"),
+        title: Text("Berita"),
         backgroundColor: Colors.teal,
+        actions: [
+          TextButton(
+            onPressed: () {},
+            child: Text(
+              'Hi, ${username ?? ''}',  // Greet the user with their username, or an empty string if null
+              style: TextStyle(
+                color: Colors.white, // Set text color to white
+                fontSize: 18,        // Set font size
+              ),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.exit_to_app),
+            tooltip: 'Logout',
+            color: Colors.white, // Set icon color to white
+            onPressed: () {
+              // Clear session
+              setState(() {
+                sessionManager.clearSession();
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => PageLogin()),
+                      (route) => false,
+                );
+              });
+            },
+          ),
+        ],
+
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -113,23 +164,23 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> with Single
         labelColor: Colors.black,
         unselectedLabelColor: Colors.grey,
         controller: tabController,
-        onTap: widget.onItemTapped, // Call the _onItemTapped function
+        onTap: widget.onItemTapped,
         tabs: const [
           Tab(
-            text: "Home",
-            icon: Icon(Icons.input),
-          ),
-          Tab(
-            text: "Form Register",
-            icon: Icon(Icons.grid_on),
-          ),
-          Tab(
             text: "Berita",
-            icon: Icon(Icons.search),
+            icon: Icon(Icons.newspaper),
+          ),
+          Tab(
+            text: "Gallery",
+            icon: Icon(Icons.photo_camera),
+          ),
+          Tab(
+            text: "Pegawai",
+            icon: Icon(Icons.people_alt_sharp),
           ),
           Tab( // New Tab
             text: "Users",
-            icon: Icon(Icons.search),
+            icon: Icon(Icons.person),
           ),
         ],
       ),

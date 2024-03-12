@@ -10,32 +10,32 @@ String modelLoginToJson(ModelLogin data) => json.encode(data.toJson());
 
 class ModelLogin {
   int value;
-  String message;
+  String id;
   String username;
   String fullname;
-  String id;
+  String message;
 
   ModelLogin({
     required this.value,
-    required this.message,
+    required this.id,
     required this.username,
     required this.fullname,
-    required this.id,
+    required this.message,
   });
 
   factory ModelLogin.fromJson(Map<String, dynamic> json) => ModelLogin(
     value: json["value"],
-    message: json["message"],
+    id: json["id"],
     username: json["username"],
     fullname: json["fullname"],
-    id: json["id"],
+    message: json["message"],
   );
 
   Map<String, dynamic> toJson() => {
     "value": value,
-    "message": message,
+    "id": id,
     "username": username,
     "fullname": fullname,
-    "id": id,
+    "message": message,
   };
 }

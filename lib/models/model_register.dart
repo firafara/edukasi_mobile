@@ -10,20 +10,30 @@ String modelRegisterToJson(ModelRegister data) => json.encode(data.toJson());
 
 class ModelRegister {
   int value;
+  String username;
+  String email;
+  String fullname;
   String message;
 
   ModelRegister({
-    required this.value,
-    required this.message,
+  required this.value,
+  required this.username,
+  required this.email,
+  required this.fullname,
+  required this.message,
   });
+
 
   factory ModelRegister.fromJson(Map<String, dynamic> json) => ModelRegister(
     value: json["value"],
-    message: json["message"],
+    message: json["message"], username: 'json["username"]', email: 'json["email"]', fullname: 'json["fullname"]',
   );
 
   Map<String, dynamic> toJson() => {
     "value": value,
     "message": message,
+    "username": username,
+    "email": email,
+    "fullname": fullname,
   };
 }

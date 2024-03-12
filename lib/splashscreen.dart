@@ -1,3 +1,4 @@
+import 'package:edukasi_mobile/page_login.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:edukasi_mobile/home.dart';
@@ -21,7 +22,7 @@ class _SplashScreen extends State<SplashScreen>{
     return Timer(duration, (){
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => Home()),
+        MaterialPageRoute(builder: (context) => PageLogin()),
       );
     });
   }
@@ -33,10 +34,10 @@ class _SplashScreen extends State<SplashScreen>{
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Image.asset(
-          //   'images/splash.png',
-          //   fit: BoxFit.cover,
-          // ),
+          Image.asset(
+            'images/background.png',
+            fit: BoxFit.cover,
+          ),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -44,7 +45,7 @@ class _SplashScreen extends State<SplashScreen>{
               children: <Widget>[
                 Icon(
                   Icons.library_books,
-                  size: 100.0,
+                  size: 150.0,
                   color: Colors.white,
                 ),
                 SizedBox(height: 24.0,),

@@ -76,8 +76,7 @@ class _PageListUserState extends State<PageListUser> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(listUser[index].email ?? ""),
-                      Text(listUser[index].address.street ?? ""),
-                      Text("Company : ${listUser[index].company.name}" ?? ""),
+
 
                     ],
                   ),
