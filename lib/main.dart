@@ -1,4 +1,3 @@
-import 'package:edukasi_mobile/home.dart';
 import 'package:edukasi_mobile/splashscreen.dart';
 import 'package:flutter/material.dart';
 
