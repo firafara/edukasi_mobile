@@ -4,7 +4,8 @@
 
 import 'dart:convert';
 
-ModelBerita modelBeritaFromJson(String str) => ModelBerita.fromJson(json.decode(str));
+ModelBerita modelBeritaFromJson(String str) =>
+    ModelBerita.fromJson(json.decode(str));
 
 String modelBeritaToJson(ModelBerita data) => json.encode(data.toJson());
 
@@ -13,7 +14,6 @@ class ModelBerita {
   String message;
   List<Datum> data;
 
-
   ModelBerita({
     required this.isSuccess,
     required this.message,
@@ -21,16 +21,16 @@ class ModelBerita {
   });
 
   factory ModelBerita.fromJson(Map<String, dynamic> json) => ModelBerita(
-    isSuccess: json["isSuccess"],
-    message: json["message"],
-    data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
-  );
+        isSuccess: json["isSuccess"],
+        message: json["message"],
+        data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+      );
 
   Map<String, dynamic> toJson() => {
-    "isSuccess": isSuccess,
-    "message": message,
-    "data": List<dynamic>.from(data.map((x) => x.toJson())),
-  };
+        "isSuccess": isSuccess,
+        "message": message,
+        "data": List<dynamic>.from(data.map((x) => x.toJson())),
+      };
 }
 
 class Datum {
@@ -49,18 +49,22 @@ class Datum {
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
-    id: json["id"] ?? '0', // Providing a default value if null
-    judul: json["judul"] ?? 'No Title', // Providing a default value if null
-    konten: json["konten"] ?? 'No Content', // Providing a default value if null
-    gambar: json["gambar"] ?? 'default_image.png', // Providing a default value if null
-    createdAt: json["createdAt"] != null ? DateTime.parse(json["createdAt"]) : DateTime.now(), // Providing a current date if null
-  );
+        id: json["id"] ?? '0', // Providing a default value if null
+        judul: json["judul"] ?? 'No Title', // Providing a default value if null
+        konten:
+            json["konten"] ?? 'No Content', // Providing a default value if null
+        gambar: json["gambar"] ??
+            'default_image.png', // Providing a default value if null
+        createdAt: json["createdAt"] != null
+            ? DateTime.parse(json["createdAt"])
+            : DateTime.now(), // Providing a current date if null
+      );
 
   Map<String, dynamic> toJson() => {
-    "id": id,
-    "judul": judul,
-    "konten": konten,
-    "gambar": gambar,
-    "createdAt": createdAt.toIso8601String(),
-  };
+        "id": id,
+        "judul": judul,
+        "konten": konten,
+        "gambar": gambar,
+        "createdAt": createdAt.toIso8601String(),
+      };
 }
