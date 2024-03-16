@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:edukasi_mobile/home.dart';
 import 'package:edukasi_mobile/page_register.dart';
 import 'package:flutter/material.dart';
@@ -7,68 +9,77 @@ import 'package:edukasi_mobile/utils/session_manager.dart';
 import 'models/ModelLogin.dart';
 
 class PageLogin extends StatefulWidget {
-  const PageLogin({super.key});
+  const PageLogin({Key? key}) : super(key: key);
 
   @override
   State<PageLogin> createState() => _PageLoginState();
 }
 
 class _PageLoginState extends State<PageLogin> {
-
   TextEditingController txtUsername = TextEditingController();
   TextEditingController txtPassword = TextEditingController();
   GlobalKey<FormState> keyForm = GlobalKey<FormState>();
 
   bool isLoading = false;
-  Future<ModelLogin?> loginAccount() async {
+
+  Future<void> loginAccount() async {
     try {
       setState(() {
         isLoading = true;
       });
+
       http.Response res = await http.post(
-          Uri.parse('http://192.168.1.11/edukasi/login.php'),
-          body: {
-            "username": txtUsername.text,
-            "password": txtPassword.text,
+        Uri.parse('http://192.168.1.14/edukasi/login.php'),
+        body: {
+          "login": "1",
+          "username": txtUsername.text,
+          "password": txtPassword.text,
+        },
+      );
 
-          });
+      if (res.statusCode == 200) {
+        ModelLogin data = ModelLogin.fromJson(json.decode(res.body));
+        if (data.sukses) {
+          if (data.data != null && data.data.id != null && data.data.username != null &&
+              data.data.fullname != null && data.data.email != null) {
+            sessionManager.saveSession(
+              data.status,
+              data.data.id,
+              data.data.username,
+              data.data.fullname,
+              data.data.email,
+            );
 
-      ModelLogin data = modelLoginFromJson(res.body);
-      //cek kondisi respon
-      if (data.value == 1) {
-        setState(() {
-          isLoading = false;
-          sessionManager.saveSession(data.value ?? 0, data.id ?? "", data.username ?? "", data.fullname ?? "");
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('${data.message}')));
-          //kondisi berhasil dan pindah ke page login
-          Navigator.pushAndRemoveUntil(
+            print('Nilai sesi disimpan:');
+            print('ID: ${data.data.id}');
+            print('Username: ${data.data.username}');
+            print('Fullname: ${data.data.fullname}');
+            print('Email: ${data.data.email}');
+
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${data.pesan}')));
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => Home()),
-                  (route) => false);
-        });
-        //kondisi email sudah ada
-      } else if (data.value == 2) {
-        setState(() {
-          isLoading = false;
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('${data.message}')));
-        });
-        //kondisi gagal daftar
+            );
+          } else {
+            throw Exception('Data pengguna tidak lengkap atau null');
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${data.pesan}')));
+        }
       } else {
-        isLoading = false;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('${data.message}')));
+        throw Exception('Failed to load data');
       }
     } catch (e) {
-      isLoading = false;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
 
-  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,14 +90,11 @@ class _PageLoginState extends State<PageLogin> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Widget untuk menampilkan gambar/logo (jika diperlukan)
               Image.asset(
-                'images/logo.png', // ganti dengan path gambar Anda
-                width: 100, // atur lebar gambar
-                height: 100, // atur tinggi gambar
+                'images/logo.png',
+                width: 100,
+                height: 100,
               ),
-
-              // Widget untuk menampilkan judul/login text
               Text(
                 'Login Form',
                 textAlign: TextAlign.center,
@@ -95,10 +103,7 @@ class _PageLoginState extends State<PageLogin> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
               SizedBox(height: 20.0),
-
-              // Widget untuk form login
               Form(
                 key: keyForm,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -142,16 +147,12 @@ class _PageLoginState extends State<PageLogin> {
                   ],
                 ),
               ),
-
               SizedBox(height: 20.0),
-
-              // Widget untuk navigasi ke halaman registrasi
               TextButton(
                 onPressed: () {
-                  Navigator.pushAndRemoveUntil(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => PageRegister()),
-                        (route) => false,
                   );
                 },
                 child: Text('Anda Belum Punya Akun ? Silahkan Register'),
@@ -162,5 +163,4 @@ class _PageLoginState extends State<PageLogin> {
       ),
     );
   }
-
 }

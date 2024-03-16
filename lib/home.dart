@@ -1,3 +1,4 @@
+import 'package:edukasi_mobile/models/model_user.dart';
 import 'package:edukasi_mobile/page_list_user.dart';
 import 'package:edukasi_mobile/page_login.dart';
 import 'package:edukasi_mobile/utils/session_manager.dart';
@@ -28,9 +29,17 @@ class _HomeState extends State<Home> {
         MaterialPageRoute(builder: (context) => PageRegister()),
       );
     }else if(index == 3) {
+      // Ambil data pengguna yang sedang login dari SessionManager
+      ModelUsers currentUser = ModelUsers(
+        id: int.parse(sessionManager.id!),
+        username: sessionManager.username!,
+        email: sessionManager.email!,
+        fullname: sessionManager.fullname!, name: '',
+      );
+
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => PageListUser()),
+        MaterialPageRoute(builder: (context) => PageListUser(currentUser: currentUser)),
       );
     }
   }

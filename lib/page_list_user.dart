@@ -1,89 +1,80 @@
-import 'dart:convert';
-
+import 'package:edukasi_mobile/page_edit_profile.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:edukasi_mobile/models/model_user.dart';
+import 'package:edukasi_mobile/models/model_user.dart'; // Ubah sesuai dengan path model Anda
 
-class PageListUser extends StatefulWidget {
-  const PageListUser({super.key});
+class PageListUser extends StatelessWidget {
+  final ModelUsers currentUser;
 
-  @override
-  State<PageListUser> createState() => _PageListUserState();
-}
-
-class _PageListUserState extends State<PageListUser> {
-
-  bool isLoading = false;
-  List<ModelUsers> listUser = [];
-
-  //bikin method untuk get user
-  Future getUser() async{
-    try{
-      setState(() {
-        isLoading = true;
-      });
-      http.Response res = await http.get(Uri.parse('https://jsonplaceholder.typicode.com/users'));
-      var data = jsonDecode(res.body);
-      setState(() {
-        for(Map<String, dynamic> i in data){
-          listUser.add(ModelUsers.fromJson(i));
-        }
-      });
-
-    }catch (e){
-      setState(() {
-        isLoading = false;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()))
-        );
-      });
-    }
-  }
-
-  //proses do in background
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getUser();
-  }
-
+  PageListUser({required this.currentUser});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Data User from Api"),
-        backgroundColor: Colors.deepOrangeAccent,
+        title: Text("Profile"),
+        backgroundColor: Colors.teal,
       ),
-
-      body: ListView.builder(
-          itemCount: listUser.length,
-          itemBuilder: (context, index){
-            return Padding(
-              padding: EdgeInsets.all(8),
-              child: Card(
-                child: ListTile(
-                  title: Text(listUser[index].name ?? "",
-                    style: TextStyle(
-                      color: Colors.orange,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold
-                    ),
-                  ),
-                  subtitle: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(listUser[index].email ?? ""),
-
-
-                    ],
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                backgroundColor: Colors.teal, // Warna latar belakang avatar
+                radius: 50, // Ukuran avatar
+                child: Text(
+                  currentUser.username[0].toUpperCase(), // Menampilkan huruf pertama username
+                  style: TextStyle(
+                    fontSize: 40, // Ukuran teks
+                    fontWeight: FontWeight.bold, // Ketebalan teks
+                    color: Colors.white, // Warna teks
                   ),
                 ),
               ),
-            );
-          }),
+              SizedBox(height: 20), // Jarak antara avatar dan teks
+              Text(
+                currentUser.username,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10), // Jarak antara teks
+              Text(
+                currentUser.email,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
+              SizedBox(height: 10), // Jarak antara teks
+              Text(
+                currentUser.fullname,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
+              SizedBox(height: 20), // Jarak antara teks dan tombol
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PageEditProfile(currentUser: currentUser)),
+                  );
+                },
+                child: Text('Edit Profile'), // Teks tombol
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.teal), // Warna tombol
+                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white), // Warna teks di atas tombol
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.symmetric(horizontal: 40, vertical: 16)), // Padding tombol
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
