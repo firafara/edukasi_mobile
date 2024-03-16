@@ -13,6 +13,7 @@ class ModelBerita {
   String message;
   List<Datum> data;
 
+
   ModelBerita({
     required this.isSuccess,
     required this.message,
@@ -35,31 +36,31 @@ class ModelBerita {
 class Datum {
   String id;
   String judul;
-  String isiBerita;
-  String gambarBerita;
-  DateTime tglBerita;
+  String konten;
+  String gambar;
+  DateTime createdAt;
 
   Datum({
     required this.id,
     required this.judul,
-    required this.isiBerita,
-    required this.gambarBerita,
-    required this.tglBerita,
+    required this.konten,
+    required this.gambar,
+    required this.createdAt,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
-    id: json["id"],
-    judul: json["judul"],
-    isiBerita: json["isi_berita"],
-    gambarBerita: json["gambar_berita"],
-    tglBerita: DateTime.parse(json["tgl_berita"]),
+    id: json["id"] ?? '0', // Providing a default value if null
+    judul: json["judul"] ?? 'No Title', // Providing a default value if null
+    konten: json["konten"] ?? 'No Content', // Providing a default value if null
+    gambar: json["gambar"] ?? 'default_image.png', // Providing a default value if null
+    createdAt: json["createdAt"] != null ? DateTime.parse(json["createdAt"]) : DateTime.now(), // Providing a current date if null
   );
 
   Map<String, dynamic> toJson() => {
     "id": id,
     "judul": judul,
-    "isi_berita": isiBerita,
-    "gambar_berita": gambarBerita,
-    "tgl_berita": tglBerita.toIso8601String(),
+    "konten": konten,
+    "gambar": gambar,
+    "createdAt": createdAt.toIso8601String(),
   };
 }

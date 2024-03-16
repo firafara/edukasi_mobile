@@ -1,9 +1,10 @@
 import 'package:edukasi_mobile/models/model_user.dart';
+import 'package:edukasi_mobile/page_gallery.dart';
 import 'package:edukasi_mobile/page_list_user.dart';
 import 'package:edukasi_mobile/page_login.dart';
 import 'package:edukasi_mobile/utils/session_manager.dart';
 import 'package:flutter/material.dart';
-import 'page_register.dart'; // Import halaman registrasi
+import 'page_register.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -21,7 +22,7 @@ class _HomeState extends State<Home> {
     if (index == 1) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => PageRegister()),
+        MaterialPageRoute(builder: (context) => PageGallery()),
       );
     }else if(index == 2){
       Navigator.push(
@@ -156,43 +157,43 @@ class BottomNavigationPage extends StatefulWidget {
   _BottomNavigationPageState createState() => _BottomNavigationPageState();
 }
 
-class _BottomNavigationPageState extends State<BottomNavigationPage> with SingleTickerProviderStateMixin {
-  late TabController tabController;
+class _BottomNavigationPageState extends State<BottomNavigationPage> {
+  int _selectedIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    tabController = TabController(length: 4, vsync: this); // Change length to 4 for 4 tabs
+  void _onTap(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    widget.onItemTapped(index);
   }
 
   @override
   Widget build(BuildContext context) {
-    return BottomAppBar(
-      child: TabBar(
-        isScrollable: true,
-        labelColor: Colors.black,
-        unselectedLabelColor: Colors.grey,
-        controller: tabController,
-        onTap: widget.onItemTapped,
-        tabs: const [
-          Tab(
-            text: "Berita",
-            icon: Icon(Icons.newspaper),
-          ),
-          Tab(
-            text: "Gallery",
-            icon: Icon(Icons.photo_camera),
-          ),
-          Tab(
-            text: "Pegawai",
-            icon: Icon(Icons.people_alt_sharp),
-          ),
-          Tab( // New Tab
-            text: "Users",
-            icon: Icon(Icons.person),
-          ),
-        ],
-      ),
+    return BottomNavigationBar(
+      currentIndex: _selectedIndex,
+      onTap: _onTap,
+      backgroundColor: Colors.indigo, // Set a background color for the bar
+      selectedItemColor: Colors.black54, // Color for the selected item
+      unselectedItemColor: Colors.indigo, // Color for the unselected items
+      showUnselectedLabels: true, // Optional: set to true if you want to always show labels
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.newspaper),
+          label: 'Berita',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.photo_camera),
+          label: 'Gallery',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.people_alt_sharp),
+          label: 'Pegawai',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Users',
+        ),
+      ],
     );
   }
 }
