@@ -27,6 +27,19 @@ class _PageEditProfileState extends State<PageEditProfile> {
   }
 
   void saveChanges(String newUsername, String newFullName, String newEmail) async {
+    // Validasi input sebelum menyimpan perubahan
+    if (newUsername.isEmpty || newFullName.isEmpty || newEmail.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('All fields are required')));
+      return;
+    }
+
+    // Validasi format email menggunakan regex
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(newEmail)) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Invalid email format')));
+      return;
+    }
+
     try {
       var url = Uri.parse('http://192.168.1.14/edukasi/updateUser.php');
       var response = await http.post(url, body: {
@@ -61,6 +74,7 @@ class _PageEditProfileState extends State<PageEditProfile> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('An error occurred')));
     }
   }
+
 
 
   @override
@@ -125,7 +139,7 @@ class _PageEditProfileState extends State<PageEditProfile> {
                   saveChanges(newUsername, newFullName, newEmail);
                 },
                 child: Text(
-                  'Save',
+                  'Update',
                   style: TextStyle(
                     fontSize: 16,
                   ),
