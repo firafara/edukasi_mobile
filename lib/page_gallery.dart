@@ -51,19 +51,24 @@ class _PageGalleryState extends State<PageGallery> {
                   itemCount: snapshot.data!.data.length,
                   itemBuilder: (context, index) {
                     var imageUrl =
-                        "http://192.168.1.39/edukasi/${snapshot.data!.data[index].gambar}";
-                    return Image.network(
-                      imageUrl,
-                      loadingBuilder: (BuildContext context, Widget child,
-                          ImageChunkEvent? loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(child: CircularProgressIndicator());
+                        "http://192.168.1.14/edukasi/${snapshot.data!.data[index].gambar}";
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailScreen(imageUrl: imageUrl),
+                          ),
+                        );
                       },
-                      errorBuilder: (BuildContext context, Object exception,
-                          StackTrace? stackTrace) {
-                        print('Error loading image: $exception');
-                        return Text('Could not load image');
-                      },
+                      child: Hero(
+                        tag: imageUrl,
+                        child: CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) => Text('Could not load image'),
+                        ),
+                      ),
                     );
                   },
                 );
@@ -74,6 +79,37 @@ class _PageGalleryState extends State<PageGallery> {
             // By default, show a loading spinner.
             return CircularProgressIndicator();
           },
+        ),
+      ),
+    );
+  }
+}
+
+class DetailScreen extends StatelessWidget {
+  final String imageUrl;
+
+  const DetailScreen({Key? key, required this.imageUrl}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.teal,
+        title: Text('Detail Image'),
+      ),
+      body: Center(
+        child: Hero(
+          tag: imageUrl,
+          child: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: CachedNetworkImage(
+              imageUrl: imageUrl,
+              placeholder: (context, url) => CircularProgressIndicator(),
+              errorWidget: (context, url, error) => Text('Could not load image'),
+            ),
+          ),
         ),
       ),
     );
