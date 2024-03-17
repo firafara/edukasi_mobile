@@ -89,6 +89,7 @@ class _BeritaListScreenState extends State<BeritaListScreen> {
                   ),
                 ),
                 Expanded(
+                  child: Card(
                   child: ListView.builder(
                     itemCount: _filteredBeritaList.length,
                     itemBuilder: (context, index) {
@@ -106,6 +107,7 @@ class _BeritaListScreenState extends State<BeritaListScreen> {
                         },
                       );
                     },
+                  ),
                   ),
                 ),
               ],
@@ -144,7 +146,12 @@ class BeritaDetailScreen extends StatelessWidget {
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 16),
-            Image.network(berita.gambar),
+            Image.network("http://192.168.1.39/edukasi/${berita.gambar}"),
+            Text(
+              berita.gambar,
+              style: TextStyle(fontSize: 16),
+            ),
+            // Image.network(berita.gambar),
           ],
         ),
       ),

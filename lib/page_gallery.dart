@@ -33,6 +33,7 @@ class _PageGalleryState extends State<PageGallery> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.teal,
         title: Text('Gallery Page'),
       ),
       body: Center(
@@ -49,14 +50,17 @@ class _PageGalleryState extends State<PageGallery> {
                   ),
                   itemCount: snapshot.data!.data.length,
                   itemBuilder: (context, index) {
-                    var imageUrl = "http://192.168.1.14/edukasi/${snapshot.data!.data[index].gambar}";
+                    var imageUrl =
+                        "http://192.168.1.39/edukasi/${snapshot.data!.data[index].gambar}";
                     return Image.network(
                       imageUrl,
-                      loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? loadingProgress) {
                         if (loadingProgress == null) return child;
                         return Center(child: CircularProgressIndicator());
                       },
-                      errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                      errorBuilder: (BuildContext context, Object exception,
+                          StackTrace? stackTrace) {
                         print('Error loading image: $exception');
                         return Text('Could not load image');
                       },
@@ -74,5 +78,4 @@ class _PageGalleryState extends State<PageGallery> {
       ),
     );
   }
-
 }

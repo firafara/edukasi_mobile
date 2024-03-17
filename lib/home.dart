@@ -200,6 +200,7 @@ class _HomeState extends State<Home> {
                         final berita = _filteredBeritaList[index];
                         return ListTile(
                           title: Text(berita.judul),
+                          subtitle: Text(berita.gambar),
                           onTap: () {
                             Navigator.push(
                               context,
