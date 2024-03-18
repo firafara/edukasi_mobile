@@ -135,8 +135,6 @@ class _PegawaiListScreenState extends State<PegawaiListScreen> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -396,7 +394,6 @@ class PegawaiDetailScreen extends StatelessWidget {
             ),
             SizedBox(height: 16),
           ],
-
         ),
       ),
     );
@@ -415,12 +412,24 @@ class _PageAddPegawaiState extends State<PageAddPegawai> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _noHpController = TextEditingController();
 
-  bool isLoading = true;
-  Future<ModelAddPegawai?> addPegawai() async {
+  bool isLoading = false;
+
+  Future<void> addPegawai() async {
     try {
       setState(() {
         isLoading = true;
       });
+
+      // Validasi semua field harus diisi
+      if (_noBpController.text.isEmpty ||
+          _emailController.text.isEmpty ||
+          _noHpController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Semua field harus diisi')),
+        );
+        return;
+      }
+
       http.Response res = await http.post(
         Uri.parse('http://192.168.1.14/edukasi/addpegawai.php'),
         body: {
