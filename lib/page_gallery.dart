@@ -21,7 +21,7 @@ class _PageGalleryState extends State<PageGallery> {
   }
 
   Future<ModelBerita> fetchBerita() async {
-    final response = await http.get(Uri.parse('http://192.168.1.14/edukasi/berita.php'));
+    final response = await http.get(Uri.parse('http://10.208.97.54:8080/edukasi/berita.php'));
     if (response.statusCode == 200) {
       return ModelBerita.fromJson(json.decode(response.body));
     } else {

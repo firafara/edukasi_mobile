@@ -42,7 +42,7 @@ class _BeritaListScreenState extends State<BeritaListScreen> {
 
   Future<void> _fetchBerita() async {
     final response =
-        await http.get(Uri.parse('http://192.168.100.72/edukasi/berita.php'));
+        await http.get(Uri.parse('http://10.208.97.54:8080/edukasi/berita.php'));
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       setState(() {

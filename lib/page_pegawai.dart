@@ -1,3 +1,4 @@
+import 'package:edukasi_mobile/models/model_add_pegawai.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -30,7 +31,11 @@ class _PegawaiListScreenState extends State<PegawaiListScreen> {
   late List<Datum> _pegawaiList;
   late List<Datum> _filteredPegawaiList;
   late bool _isLoading;
+
+
   TextEditingController _searchController = TextEditingController();
+
+
 
   @override
   void initState() {
@@ -42,7 +47,7 @@ class _PegawaiListScreenState extends State<PegawaiListScreen> {
 
   Future<void> _fetchPegawai() async {
     final response =
-        await http.get(Uri.parse('http://192.168.100.72/edukasi/pegawai.php'));
+        await http.get(Uri.parse('http://10.208.97.54:8080/edukasi/pegawai.php'));
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       setState(() {
@@ -147,8 +152,8 @@ class _PegawaiListScreenState extends State<PegawaiListScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => TambahPegawaiScreen(
-                tambahPegawai: _addPegawai,
+              builder: (context) => PageAddPegawai(
+
               ),
             ),
           );
@@ -208,12 +213,12 @@ class PegawaiDetailScreen extends StatelessWidget {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                Datum updatedPegawai = Datum(
-                  noBp: _noBpController.text,
-                  email: _emailController.text,
-                  noHp: _noHpController.text,
-                );
-                editPegawai(updatedPegawai);
+                // Datum updatedPegawai = Datum(
+                //   noBp: _noBpController.text,
+                //   email: _emailController.text,
+                //   noHp: _noHpController.text,
+                // );
+                // editPegawai(updatedPegawai);
                 Navigator.pop(context);
               },
               child: Text('Update'),
@@ -226,7 +231,7 @@ class PegawaiDetailScreen extends StatelessWidget {
               },
               child: Text('Delete'),
               style: ElevatedButton.styleFrom(
-                primary: Colors.red,
+                backgroundColor: Colors.red,
               ),
             ),
           ],
@@ -236,18 +241,66 @@ class PegawaiDetailScreen extends StatelessWidget {
   }
 }
 
-class TambahPegawaiScreen extends StatelessWidget {
-  final Function(Datum) tambahPegawai;
 
-  const TambahPegawaiScreen({Key? key, required this.tambahPegawai})
-      : super(key: key);
+class PageAddPegawai extends StatefulWidget {
+  const PageAddPegawai({super.key});
+
+  @override
+  State<PageAddPegawai> createState() => _PageAddPegawaiState();
+}
+
+class _PageAddPegawaiState extends State<PageAddPegawai> {
+  TextEditingController _noBpController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _noHpController = TextEditingController();
+
+  bool isLoading = true;
+  Future<ModelAddPegawai?> addPegawai() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      http.Response res = await http.post(
+        Uri.parse('http://10.208.97.54:8080/edukasi/addpegawai.php'),
+        body: {
+      "no_bp": _noBpController.text,
+      "no_hp": _noHpController.text,
+      "email": _emailController.text,
+      },
+      );
+
+      ModelAddPegawai data = modelAddPegawaiFromJson(res.body);
+      //cek kondisi respon
+      if (data.isSuccess == true) {
+        setState(() {
+          isLoading = false;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('${data.message}')),
+          );
+          //kondisi berhasil dan pindah ke page login
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => PegawaiListScreen()),
+                (route) => false,
+          );
+        });
+        //kondisi email sudah ada
+      } else {
+        isLoading = false;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${data.message}')),
+        );
+      }
+    } catch (e) {
+      isLoading = false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController _noBpController = TextEditingController();
-    TextEditingController _emailController = TextEditingController();
-    TextEditingController _noHpController = TextEditingController();
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.teal,
@@ -275,13 +328,16 @@ class TambahPegawaiScreen extends StatelessWidget {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                Datum newPegawai = Datum(
-                  noBp: _noBpController.text,
-                  email: _emailController.text,
-                  noHp: _noHpController.text,
-                );
-                tambahPegawai(newPegawai);
-                Navigator.pop(context);
+                setState(() {
+                  addPegawai();
+                });
+                // Datum newPegawai = Datum(
+                //   noBp: _noBpController.text,
+                //   email: _emailController.text,
+                //   noHp: _noHpController.text,
+                // );
+                // tambahPegawai(newPegawai);
+
               },
               child: Text('Tambah'),
             ),
@@ -291,3 +347,4 @@ class TambahPegawaiScreen extends StatelessWidget {
     );
   }
 }
+
