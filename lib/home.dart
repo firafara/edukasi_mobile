@@ -200,7 +200,12 @@ class _HomeState extends State<Home> {
                         final berita = _filteredBeritaList[index];
                         return ListTile(
                           title: Text(berita.judul),
-                          subtitle: Text(berita.gambar),
+                          leading: Image.network(
+                            "http://192.168.198.230/edukasi/${berita.gambar}",
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                          ),
                           onTap: () {
                             Navigator.push(
                               context,

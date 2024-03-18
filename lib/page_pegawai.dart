@@ -66,6 +66,27 @@ class _PegawaiListScreenState extends State<PegawaiListScreen> {
     });
   }
 
+  void _addPegawai(Datum pegawai) {
+    setState(() {
+      _pegawaiList.add(pegawai);
+      _filteredPegawaiList = _pegawaiList;
+    });
+  }
+
+  void _editPegawai(int index, Datum updatedPegawai) {
+    setState(() {
+      _pegawaiList[index] = updatedPegawai;
+      _filteredPegawaiList = _pegawaiList;
+    });
+  }
+
+  void _deletePegawai(int index) {
+    setState(() {
+      _pegawaiList.removeAt(index);
+      _filteredPegawaiList = _pegawaiList;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,36 +115,72 @@ class _PegawaiListScreenState extends State<PegawaiListScreen> {
                     itemCount: _filteredPegawaiList.length,
                     itemBuilder: (context, index) {
                       final pegawai = _filteredPegawaiList[index];
-                      return ListTile(
-                        title: Text(pegawai.noBp),
-                        subtitle: Text(pegawai.email),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  PegawaiDetailScreen(pegawai: pegawai),
-                            ),
-                          );
-                        },
+                      return Card(
+                        child: ListTile(
+                          title: Text(pegawai.noBp),
+                          subtitle: Text(pegawai.email),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PegawaiDetailScreen(
+                                  pegawai: pegawai,
+                                  editPegawai: (updatedPegawai) {
+                                    _editPegawai(index, updatedPegawai);
+                                  },
+                                  deletePegawai: () {
+                                    _deletePegawai(index);
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       );
                     },
                   ),
                 ),
               ],
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TambahPegawaiScreen(
+                tambahPegawai: _addPegawai,
+              ),
+            ),
+          );
+        },
+        backgroundColor: Colors.teal,
+        child: Icon(Icons.add),
+      ),
     );
   }
 }
 
 class PegawaiDetailScreen extends StatelessWidget {
   final Datum pegawai;
+  final Function(Datum) editPegawai;
+  final Function() deletePegawai;
 
-  const PegawaiDetailScreen({Key? key, required this.pegawai})
-      : super(key: key);
+  const PegawaiDetailScreen({
+    Key? key,
+    required this.pegawai,
+    required this.editPegawai,
+    required this.deletePegawai,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController _noBpController =
+        TextEditingController(text: pegawai.noBp);
+    TextEditingController _emailController =
+        TextEditingController(text: pegawai.email);
+    TextEditingController _noHpController =
+        TextEditingController(text: pegawai.noHp);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.teal,
@@ -134,33 +191,100 @@ class PegawaiDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'No BP: ${pegawai.noBp}',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+            TextField(
+              controller: _noBpController,
+              decoration: InputDecoration(labelText: 'No BP'),
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(labelText: 'Email'),
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: _noHpController,
+              decoration: InputDecoration(labelText: 'No HP'),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Datum updatedPegawai = Datum(
+                  noBp: _noBpController.text,
+                  email: _emailController.text,
+                  noHp: _noHpController.text,
+                );
+                editPegawai(updatedPegawai);
+                Navigator.pop(context);
+              },
+              child: Text('Update'),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                deletePegawai();
+                Navigator.pop(context);
+              },
+              child: Text('Delete'),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.red,
               ),
             ),
-            SizedBox(height: 16),
-            Text(
-              'Email: ${pegawai.email}',
-              style: TextStyle(fontSize: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class TambahPegawaiScreen extends StatelessWidget {
+  final Function(Datum) tambahPegawai;
+
+  const TambahPegawaiScreen({Key? key, required this.tambahPegawai})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    TextEditingController _noBpController = TextEditingController();
+    TextEditingController _emailController = TextEditingController();
+    TextEditingController _noHpController = TextEditingController();
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.teal,
+        title: Text('Tambah Pegawai'),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: _noBpController,
+              decoration: InputDecoration(labelText: 'No BP'),
             ),
             SizedBox(height: 16),
-            Text(
-              'No HP: ${pegawai.noHp}',
-              style: TextStyle(fontSize: 16),
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(labelText: 'Email'),
             ),
-            // SizedBox(height: 16),
-            // Text(
-            //   'Created At: ${pegawai.createdAt.toString()}',
-            //   style: TextStyle(fontSize: 16),
-            // ),
-            // SizedBox(height: 16),
-            // Text(
-            //   'Updated At: ${pegawai.updatedAt.toString()}',
-            //   style: TextStyle(fontSize: 16),
-            // ),
+            SizedBox(height: 16),
+            TextField(
+              controller: _noHpController,
+              decoration: InputDecoration(labelText: 'No HP'),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Datum newPegawai = Datum(
+                  noBp: _noBpController.text,
+                  email: _emailController.text,
+                  noHp: _noHpController.text,
+                );
+                tambahPegawai(newPegawai);
+                Navigator.pop(context);
+              },
+              child: Text('Tambah'),
+            ),
           ],
         ),
       ),
