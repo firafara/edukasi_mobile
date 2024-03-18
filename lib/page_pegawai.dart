@@ -44,12 +44,12 @@ class _PegawaiListScreenState extends State<PegawaiListScreen> {
 
   Future<void> _fetchPegawai() async {
     final response =
-        await http.get(Uri.parse('http://192.168.1.8/edukasi/pegawai.php'));
+    await http.get(Uri.parse('http://192.168.1.14/edukasi/pegawai.php'));
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       setState(() {
         _pegawaiList =
-            List<Datum>.from(parsed['data'].map((x) => Datum.fromJson(x)));
+        List<Datum>.from(parsed['data'].map((x) => Datum.fromJson(x)));
         _filteredPegawaiList = _pegawaiList;
         _isLoading = false;
       });
@@ -62,8 +62,8 @@ class _PegawaiListScreenState extends State<PegawaiListScreen> {
     setState(() {
       _filteredPegawaiList = _pegawaiList
           .where((pegawai) =>
-              pegawai.noBp.toLowerCase().contains(query.toLowerCase()) ||
-              pegawai.email.toLowerCase().contains(query.toLowerCase()))
+      pegawai.noBp.toLowerCase().contains(query.toLowerCase()) ||
+          pegawai.email.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -75,19 +75,67 @@ class _PegawaiListScreenState extends State<PegawaiListScreen> {
     });
   }
 
-  void _editPegawai(int index, Datum updatedPegawai) {
-    setState(() {
-      _pegawaiList[index] = updatedPegawai;
-      _filteredPegawaiList = List.from(_pegawaiList);
-    });
+  Future<void> _editPegawai(int index, Datum updatedPegawai) async {
+    final response = await http.post(
+      Uri.parse('http://192.168.1.14/edukasi/editpegawai.php'),
+      body: {
+        "id": updatedPegawai.id.toString(),
+        "no_bp": updatedPegawai.noBp,
+        "email": updatedPegawai.email,
+        "no_hp": updatedPegawai.noHp,
+      },
+    );
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      if (parsed['isSuccess']) {
+        setState(() {
+          _pegawaiList[index] = updatedPegawai;
+          _filteredPegawaiList = List.from(_pegawaiList);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(parsed['message'])),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(parsed['message'])),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to edit pegawai')),
+      );
+    }
   }
 
-  void _deletePegawai(int index) {
-    setState(() {
-      _pegawaiList.removeAt(index);
-      _filteredPegawaiList = List.from(_pegawaiList);
-    });
+  Future<void> _deletePegawai(int index) async {
+    final pegawaiToDelete = _pegawaiList[index];
+    final response = await http.post(
+      Uri.parse('http://192.168.1.14/edukasi/deletepegawai.php'),
+      body: {"id": pegawaiToDelete.id.toString()},
+    );
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body);
+      if (parsed['isSuccess']) {
+        setState(() {
+          _pegawaiList.removeAt(index);
+          _filteredPegawaiList = List.from(_pegawaiList);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(parsed['message'])),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(parsed['message'])),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete pegawai')),
+      );
+    }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -99,83 +147,81 @@ class _PegawaiListScreenState extends State<PegawaiListScreen> {
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: _filterPegawaiList,
-                    decoration: InputDecoration(
-                      labelText: 'Search Pegawai',
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _filteredPegawaiList.length,
-                    itemBuilder: (context, index) {
-                      final pegawai = _filteredPegawaiList[index];
-                      return Card(
-                        child: ListTile(
-                          title: Text(pegawai.noBp),
-                          subtitle: Text(pegawai.email),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  // Tambahkan logika untuk navigasi ke layar edit pegawai
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => PegawaiEditScreen(
-                                        pegawai: pegawai,
-                                        editPegawai: (updatedPegawai) {
-                                          _editPegawai(index, updatedPegawai);
-                                        },
-                                      ),
-                                    ),
-                                  );
-                                },
-                                icon: Icon(Icons.edit),
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  // Tambahkan logika untuk navigasi ke layar konfirmasi penghapusan
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => PegawaiDeleteScreen(
-                                        deletePegawai: () {
-                                          _deletePegawai(index);
-                                        },
-                                      ),
-                                    ),
-                                  );
-                                },
-                                icon: Icon(Icons.delete),
-                                color: Colors.red,
-                              ),
-                            ],
-                          ),
-                          onTap: () {
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              onChanged: _filterPegawaiList,
+              decoration: InputDecoration(
+                labelText: 'Search Pegawai',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _filteredPegawaiList.length,
+              itemBuilder: (context, index) {
+                final pegawai = _filteredPegawaiList[index];
+                return Card(
+                  child: ListTile(
+                    title: Text(pegawai.noBp),
+                    subtitle: Text(pegawai.email),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => PegawaiDetailScreen(
-                                        pegawai: pegawai,
-                                      )),
+                                builder: (context) => PegawaiEditScreen(
+                                  pegawai: pegawai,
+                                  editPegawai: (updatedPegawai) {
+                                    _editPegawai(index, updatedPegawai);
+                                  },
+                                ),
+                              ),
                             );
                           },
+                          icon: Icon(Icons.edit),
                         ),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PegawaiDeleteScreen(
+                                  deletePegawai: () {
+                                    _deletePegawai(index);
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                          icon: Icon(Icons.delete),
+                          color: Colors.red,
+                        ),
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PegawaiDetailScreen(
+                              pegawai: pegawai,
+                            )),
                       );
                     },
                   ),
-                ),
-              ],
+                );
+              },
             ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -205,11 +251,11 @@ class PegawaiEditScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextEditingController _noBpController =
-        TextEditingController(text: pegawai.noBp);
+    TextEditingController(text: pegawai.noBp);
     TextEditingController _emailController =
-        TextEditingController(text: pegawai.email);
+    TextEditingController(text: pegawai.email);
     TextEditingController _noHpController =
-        TextEditingController(text: pegawai.noHp);
+    TextEditingController(text: pegawai.noHp);
 
     return Scaffold(
       appBar: AppBar(
@@ -318,11 +364,11 @@ class PegawaiDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextEditingController _noBpController =
-        TextEditingController(text: pegawai.noBp);
+    TextEditingController(text: pegawai.noBp);
     TextEditingController _emailController =
-        TextEditingController(text: pegawai.email);
+    TextEditingController(text: pegawai.email);
     TextEditingController _noHpController =
-        TextEditingController(text: pegawai.noHp);
+    TextEditingController(text: pegawai.noHp);
 
     return Scaffold(
       appBar: AppBar(
@@ -350,6 +396,7 @@ class PegawaiDetailScreen extends StatelessWidget {
             ),
             SizedBox(height: 16),
           ],
+
         ),
       ),
     );
@@ -375,7 +422,7 @@ class _PageAddPegawaiState extends State<PageAddPegawai> {
         isLoading = true;
       });
       http.Response res = await http.post(
-        Uri.parse('http://192.168.1.8/edukasi/addpegawai.php'),
+        Uri.parse('http://192.168.1.14/edukasi/addpegawai.php'),
         body: {
           "no_bp": _noBpController.text,
           "no_hp": _noHpController.text,
@@ -384,21 +431,18 @@ class _PageAddPegawaiState extends State<PageAddPegawai> {
       );
 
       ModelAddPegawai data = modelAddPegawaiFromJson(res.body);
-      //cek kondisi respon
       if (data.isSuccess == true) {
         setState(() {
           isLoading = false;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('${data.message}')),
           );
-          //kondisi berhasil dan pindah ke page login
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => PegawaiListScreen()),
-            (route) => false,
+                (route) => false,
           );
         });
-        //kondisi email sudah ada
       } else {
         isLoading = false;
         ScaffoldMessenger.of(context).showSnackBar(

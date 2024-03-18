@@ -29,7 +29,7 @@ class _PageLoginState extends State<PageLogin> {
       });
 
       http.Response res = await http.post(
-        Uri.parse('http://10.208.97.54:8080/edukasi/login.php'),
+        Uri.parse('http://192.168.1.14/edukasi/login.php'),
         body: {
           "login": "1",
           "username": txtUsername.text,

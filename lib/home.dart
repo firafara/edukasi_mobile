@@ -82,7 +82,7 @@ class _HomeState extends State<Home> {
 
   Future<void> _fetchBerita() async {
     final response =
-        await http.get(Uri.parse('http://192.168.100.72/edukasi/berita.php'));
+        await http.get(Uri.parse('http://192.168.1.14/edukasi/berita.php'));
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body);
       setState(() {
@@ -201,7 +201,7 @@ class _HomeState extends State<Home> {
                         return ListTile(
                           title: Text(berita.judul),
                           leading: Image.network(
-                            "http://192.168.198.230/edukasi/${berita.gambar}",
+                            "http://192.168.1.14/edukasi/${berita.gambar}",
                             width: 60,
                             height: 60,
                             fit: BoxFit.cover,
